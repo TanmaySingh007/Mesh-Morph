@@ -423,4 +423,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Made with ❤️ by the MeshMorph Team**
 
+<<<<<<< HEAD
 *Transform your ideas into stunning 3D textures and assets with the power of AI!* 🎨✨ 
+=======
+*Transform your ideas into stunning 3D textures and assets with the power of AI!* 🎨✨ 
+>>>>>>> c2673b838ebfc01f645d8c8de9a6fe869a39c797
