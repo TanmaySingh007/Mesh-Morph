@@ -26,6 +26,7 @@ from utils_3d import (
     create_textured_cylinder
 )
 
+
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
