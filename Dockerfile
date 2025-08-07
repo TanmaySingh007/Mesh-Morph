@@ -23,9 +23,10 @@ RUN mkdir -p /app/.cache /app/generated_textures
 ENV MODEL_CACHE_DIR=/app/.cache
 ENV OUTPUT_DIR=/app/generated_textures
 ENV PYTHONPATH=/app
+ENV PORT=8080
 
-# Expose port
-EXPOSE 8000
+# Expose port (Cloud Run uses PORT env var)
+EXPOSE 8080
 
 # Run the application
-CMD ["gunicorn", "web_app:app", "--bind", "0.0.0.0:8000", "--workers", "1", "--timeout", "300"]
+CMD ["gunicorn", "render_app:app", "--bind", "0.0.0.0:8080", "--workers", "1", "--timeout", "300"]
