@@ -1,0 +1,33 @@
+{
+  "name": "MeshMorph AI",
+  "description": "AI-powered texture and 3D asset generator using Stable Diffusion",
+  "repository": "https://github.com/TanmaySingh007/Mesh-Morph",
+  "logo": "https://raw.githubusercontent.com/TanmaySingh007/Mesh-Morph/main/logo.png",
+  "keywords": ["python", "flask", "ai", "texture-generation", "3d-assets", "stable-diffusion"],
+  "env": {
+    "MODEL_CACHE_DIR": {
+      "description": "Directory for caching AI models",
+      "value": "/app/.cache"
+    },
+    "OUTPUT_DIR": {
+      "description": "Directory for generated textures",
+      "value": "/app/generated_textures"
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "basic"
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    }
+  ],
+  "addons": [
+    {
+      "plan": "heroku-postgresql:mini"
+    }
+  ]
+}
