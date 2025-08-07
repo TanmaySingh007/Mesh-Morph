@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: mesh-morph-ai
+    env: python
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn web_app:app --bind 0.0.0.0:$PORT --workers 1 --timeout 300
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.9
+      - key: MODEL_CACHE_DIR
+        value: /opt/render/project/src/.cache
+      - key: OUTPUT_DIR
+        value: /opt/render/project/src/generated_textures
+    disk:
+      name: ai-models
+      mountPath: /opt/render/project/src/.cache
+      sizeGB: 10

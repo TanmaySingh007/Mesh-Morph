@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MeshMorph - AI-Powered 3D Texture & Asset Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --success-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --dark-bg: #0f0f23;
+            --card-bg: rgba(255, 255, 255, 0.1);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --text-color: #ff6b6b;  /* Reddish text color for better visibility */
+            --text-secondary: #ff8e8e;  /* Lighter reddish for secondary text */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-color);  /* Use reddish text color */
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+            z-index: -1;
+        }
+
+        .navbar {
+            background: rgba(15, 15, 35, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-section {
+            padding: 4rem 0;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);  /* Use lighter reddish for subtitle */
+            margin-bottom: 2rem;
+        }
+
+        .tech-stack {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .tech-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .tech-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-header {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 1.5rem;
+            border: none;
+        }
+
+        .form-control, .form-select {
+            background: var(--glass-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);  /* Use reddish text color */
+            border-radius: 15px;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background: var(--glass-bg);
+            border-color: #667eea;
+            color: var(--text-color);  /* Use reddish text color */
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+
+        .form-control::placeholder {
+            color: var(--text-secondary);  /* Use lighter reddish for placeholder */
+        }
+
+        .btn {
+            border-radius: 15px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: var(--success-gradient);
+        }
+
+        .btn-warning {
+            background: var(--warning-gradient);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-top: 2rem;
+            backdrop-filter: blur(20px);
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        .status-ready {
+            background: #43e97b;
+        }
+
+        .status-loading {
+            background: #fa709a;
+        }
+
+        .status-error {
+            background: #f5576c;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            backdrop-filter: blur(20px);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-tabs {
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+
+        .nav-tabs .nav-link {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);  /* Use lighter reddish for inactive tabs */
+            border-radius: 15px 15px 0 0;
+            padding: 1rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tabs .nav-link.active {
+            background: var(--primary-gradient);
+            color: white;
+        }
+
+        .nav-tabs .nav-link:hover {
+            color: var(--text-color);  /* Use reddish text color on hover */
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .object-presets {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .preset-btn {
+            background: var(--glass-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);  /* Use reddish text color */
+            padding: 0.75rem;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .preset-btn:hover {
+            background: var(--primary-gradient);
+            transform: translateY(-2px);
+        }
+
+        .preset-btn.active {
+            background: var(--primary-gradient);
+        }
+
+        .generation-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .floating-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(102, 126, 234, 0.3);
+            border-radius: 50%;
+            animation: float 6s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+        }
+
+        .progress-bar {
+            background: var(--glass-bg);
+            border-radius: 10px;
+            height: 8px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            background: var(--primary-gradient);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .form-label {
+            color: var(--text-color);  /* Use reddish text color for labels */
+            font-weight: 600;
+        }
+
+        .stat-card p {
+            color: var(--text-secondary);  /* Use lighter reddish for secondary text */
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .tech-stack {
+                gap: 1rem;
+            }
+            
+            .main-container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating Particles -->
+    <div class="floating-particles" id="particles"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-cube"></i> MeshMorph
+            </a>
+            <div class="navbar-nav ms-auto">
+                <span class="status-indicator" id="statusIndicator"></span>
+                <span id="statusText" class="text-light">Checking system...</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <h1 class="hero-title">AI-Powered 3D Texture & Asset Generator</h1>
+            <p class="hero-subtitle">Transform your ideas into stunning 3D textures and assets using cutting-edge AI/ML technology</p>
+            
+            <!-- Tech Stack -->
+            <div class="tech-stack">
+                <div class="tech-item">
+                    <i class="fab fa-python"></i>
+                    <span>Python</span>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-brain"></i>
+                    <span>PyTorch</span>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-magic"></i>
+                    <span>Diffusers</span>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-cube"></i>
+                    <span>Trimesh</span>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-flask"></i>
+                    <span>Flask</span>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-robot"></i>
+                    <span>Stable Diffusion</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Feature Overview -->
+        <div class="feature-grid">
+            <div class="feature-card">
+                <i class="fas fa-palette feature-icon"></i>
+                <h4>2D Texture Generation</h4>
+                <p>Generate high-quality, seamless textures from text descriptions using advanced AI models</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-cube feature-icon"></i>
+                <h4>3D Asset Creation</h4>
+                <p>Create textured 3D models (cube, sphere, cylinder) with realistic materials</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-magic feature-icon"></i>
+                <h4>AI-Powered</h4>
+                <p>Leverage state-of-the-art Stable Diffusion models for realistic texture generation</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-download feature-icon"></i>
+                <h4>Easy Export</h4>
+                <p>Download assets in standard formats (PNG, OBJ, MTL) for use in any 3D software</p>
+            </div>
+        </div>
+
+        <!-- Generation Tabs -->
+        <ul class="nav nav-tabs" id="generationTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="texture-tab" data-bs-toggle="tab" data-bs-target="#texture" type="button" role="tab">
+                    <i class="fas fa-palette"></i> 2D Texture Generation
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="3d-tab" data-bs-toggle="tab" data-bs-target="#3d" type="button" role="tab">
+                    <i class="fas fa-cube"></i> 3D Asset Generation
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="generationTabContent">
+            <!-- 2D Texture Generation -->
+            <div class="tab-pane fade show active" id="texture" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-palette"></i> Generate 2D Texture</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="textureForm">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="mb-3">
+                                        <label for="texturePrompt" class="form-label">Texture Description</label>
+                                        <input type="text" class="form-control" id="texturePrompt" 
+                                               placeholder="e.g., detailed wood grain texture, stone wall, metal surface" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="textureSteps" class="form-label">Quality Steps</label>
+                                        <select class="form-select" id="textureSteps">
+                                            <option value="10">Fast (10 steps)</option>
+                                            <option value="15" selected>Standard (15 steps)</option>
+                                            <option value="20">High Quality (20 steps)</option>
+                                            <option value="30">Ultra Quality (30 steps)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Object Presets -->
+                            <div class="mb-3">
+                                <label class="form-label">Quick Presets</label>
+                                <div class="object-presets">
+                                    <div class="preset-btn" data-preset="wood">Wood</div>
+                                    <div class="preset-btn" data-preset="stone">Stone</div>
+                                    <div class="preset-btn" data-preset="metal">Metal</div>
+                                    <div class="preset-btn" data-preset="fabric">Fabric</div>
+                                    <div class="preset-btn" data-preset="leather">Leather</div>
+                                    <div class="preset-btn" data-preset="plastic">Plastic</div>
+                                    <div class="preset-btn" data-preset="glass">Glass</div>
+                                    <div class="preset-btn" data-preset="ceramic">Ceramic</div>
+                                    <div class="preset-btn" data-preset="animals">Animals</div>
+                                    <div class="preset-btn" data-preset="cars">Cars</div>
+                                    <div class="preset-btn" data-preset="fruits">Fruits</div>
+                                    <div class="preset-btn" data-preset="buildings">Buildings</div>
+                                    <div class="preset-btn" data-preset="nature">Nature</div>
+                                    <div class="preset-btn" data-preset="food">Food</div>
+                                    <div class="preset-btn" data-preset="electronics">Electronics</div>
+                                    <div class="preset-btn" data-preset="clothing">Clothing</div>
+                                    <div class="preset-btn" data-preset="furniture">Furniture</div>
+                                    <div class="preset-btn" data-preset="vehicles">Vehicles</div>
+                                    <div class="preset-btn" data-preset="jewelry">Jewelry</div>
+                                    <div class="preset-btn" data-preset="books">Books</div>
+                                    <div class="preset-btn" data-preset="tools">Tools</div>
+                                    <div class="preset-btn" data-preset="sports">Sports</div>
+                                    <div class="preset-btn" data-preset="musical">Musical</div>
+                                    <div class="preset-btn" data-preset="medical">Medical</div>
+                                    <div class="preset-btn" data-preset="kitchen">Kitchen</div>
+                                    <div class="preset-btn" data-preset="bathroom">Bathroom</div>
+                                    <div class="preset-btn" data-preset="office">Office</div>
+                                    <div class="preset-btn" data-preset="garden">Garden</div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="textureWidth" class="form-label">Width</label>
+                                        <input type="number" class="form-control" id="textureWidth" value="512" min="256" max="1024">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="textureHeight" class="form-label">Height</label>
+                                        <input type="number" class="form-control" id="textureHeight" value="512" min="256" max="1024">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="textureEnhance" class="form-label">Enhance</label>
+                                        <select class="form-select" id="textureEnhance">
+                                            <option value="true" selected>Yes</option>
+                                            <option value="false">No</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label class="form-label">&nbsp;</label>
+                                        <button type="submit" class="btn btn-primary w-100">
+                                            <i class="fas fa-magic"></i> Generate Texture
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                        
+                        <div class="loading" id="textureLoading" style="display: none;">
+                            <div class="spinner"></div>
+                            <p>Generating your texture... This may take 2-5 minutes on CPU.</p>
+                            <p><small>AI model is processing your request. Please be patient.</small></p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="textureProgress"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="result-card" id="textureResult" style="display: none;">
+                            <h6><i class="fas fa-check-circle text-success"></i> Texture Generated Successfully!</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Prompt:</strong> <span id="textureResultPrompt"></span></p>
+                                    <p><strong>Dimensions:</strong> <span id="textureResultDimensions"></span></p>
+                                    <p><strong>Filename:</strong> <span id="textureResultFilename"></span></p>
+                                </div>
+                                <div class="col-md-6 text-end">
+                                    <a href="#" class="btn btn-success" id="textureDownloadBtn">
+                                        <i class="fas fa-download"></i> Download Texture
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3D Asset Generation -->
+            <div class="tab-pane fade" id="3d" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-cube"></i> Generate 3D Asset</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="3dForm">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="3dPrompt" class="form-label">Texture Description</label>
+                                        <input type="text" class="form-control" id="3dPrompt" 
+                                               placeholder="e.g., stone wall texture, rough surface" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="3dShape" class="form-label">3D Shape</label>
+                                        <select class="form-select" id="3dShape">
+                                            <option value="cube">Cube</option>
+                                            <option value="sphere">Sphere</option>
+                                            <option value="cylinder">Cylinder</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="3dSteps" class="form-label">Quality Steps</label>
+                                        <select class="form-select" id="3dSteps">
+                                            <option value="10">Fast (10 steps)</option>
+                                            <option value="15" selected>Standard (15 steps)</option>
+                                            <option value="20">High Quality (20 steps)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 3D Object Presets -->
+                            <div class="mb-3">
+                                <label class="form-label">3D Object Presets</label>
+                                <div class="object-presets">
+                                    <div class="preset-btn" data-preset="wood" data-type="3d">Wood</div>
+                                    <div class="preset-btn" data-preset="stone" data-type="3d">Stone</div>
+                                    <div class="preset-btn" data-preset="metal" data-type="3d">Metal</div>
+                                    <div class="preset-btn" data-preset="fabric" data-type="3d">Fabric</div>
+                                    <div class="preset-btn" data-preset="leather" data-type="3d">Leather</div>
+                                    <div class="preset-btn" data-preset="plastic" data-type="3d">Plastic</div>
+                                    <div class="preset-btn" data-preset="glass" data-type="3d">Glass</div>
+                                    <div class="preset-btn" data-preset="ceramic" data-type="3d">Ceramic</div>
+                                    <div class="preset-btn" data-preset="animals" data-type="3d">Animals</div>
+                                    <div class="preset-btn" data-preset="cars" data-type="3d">Cars</div>
+                                    <div class="preset-btn" data-preset="fruits" data-type="3d">Fruits</div>
+                                    <div class="preset-btn" data-preset="buildings" data-type="3d">Buildings</div>
+                                    <div class="preset-btn" data-preset="nature" data-type="3d">Nature</div>
+                                    <div class="preset-btn" data-preset="food" data-type="3d">Food</div>
+                                    <div class="preset-btn" data-preset="electronics" data-type="3d">Electronics</div>
+                                    <div class="preset-btn" data-preset="clothing" data-type="3d">Clothing</div>
+                                    <div class="preset-btn" data-preset="furniture" data-type="3d">Furniture</div>
+                                    <div class="preset-btn" data-preset="vehicles" data-type="3d">Vehicles</div>
+                                    <div class="preset-btn" data-preset="jewelry" data-type="3d">Jewelry</div>
+                                    <div class="preset-btn" data-preset="books" data-type="3d">Books</div>
+                                    <div class="preset-btn" data-preset="tools" data-type="3d">Tools</div>
+                                    <div class="preset-btn" data-preset="sports" data-type="3d">Sports</div>
+                                    <div class="preset-btn" data-preset="musical" data-type="3d">Musical</div>
+                                    <div class="preset-btn" data-preset="medical" data-type="3d">Medical</div>
+                                    <div class="preset-btn" data-preset="kitchen" data-type="3d">Kitchen</div>
+                                    <div class="preset-btn" data-preset="bathroom" data-type="3d">Bathroom</div>
+                                    <div class="preset-btn" data-preset="office" data-type="3d">Office</div>
+                                    <div class="preset-btn" data-preset="garden" data-type="3d">Garden</div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="3dWidth" class="form-label">Width</label>
+                                        <input type="number" class="form-control" id="3dWidth" value="512" min="256" max="1024">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="3dHeight" class="form-label">Height</label>
+                                        <input type="number" class="form-control" id="3dHeight" value="512" min="256" max="1024">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="3dEnhance" class="form-label">Enhance</label>
+                                        <select class="form-select" id="3dEnhance">
+                                            <option value="true" selected>Yes</option>
+                                            <option value="false">No</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label class="form-label">&nbsp;</label>
+                                        <button type="submit" class="btn btn-primary w-100">
+                                            <i class="fas fa-cube"></i> Generate 3D Asset
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                        
+                        <div class="loading" id="3dLoading" style="display: none;">
+                            <div class="spinner"></div>
+                            <p>Generating your 3D asset... This may take 2-5 minutes on CPU.</p>
+                            <p><small>AI model is processing your request. Please be patient.</small></p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="3dProgress"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="result-card" id="3dResult" style="display: none;">
+                            <h6><i class="fas fa-check-circle text-success"></i> 3D Asset Generated Successfully!</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Prompt:</strong> <span id="3dResultPrompt"></span></p>
+                                    <p><strong>Shape:</strong> <span id="3dResultShape"></span></p>
+                                    <p><strong>Filename:</strong> <span id="3dResultFilename"></span></p>
+                                </div>
+                                <div class="col-md-6 text-end">
+                                    <a href="#" class="btn btn-success" id="3dDownloadBtn">
+                                        <i class="fas fa-download"></i> Download 3D Asset
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Generation Stats -->
+        <div class="generation-stats">
+            <div class="stat-card">
+                <div class="stat-number" id="texturesGenerated">0</div>
+                <p>Textures Generated</p>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="3dAssetsGenerated">0</div>
+                <p>3D Assets Created</p>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalDownloads">0</div>
+                <p>Total Downloads</p>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="systemUptime">100%</div>
+                <p>System Uptime</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Create floating particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Preset button functionality
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const preset = this.dataset.preset;
+                const type = this.dataset.type;
+                
+                // Remove active class from all buttons
+                document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Set the prompt based on preset
+                const prompts = {
+                    'wood': 'detailed oak wood grain texture, natural brown, high resolution, realistic',
+                    'stone': 'rough granite stone wall texture, gray, natural, detailed, realistic',
+                    'metal': 'brushed stainless steel texture, metallic, industrial, reflective, realistic',
+                    'fabric': 'soft cotton fabric texture, white, woven pattern, detailed, realistic',
+                    'leather': 'brown leather texture, natural, aged surface, realistic, detailed',
+                    'plastic': 'smooth black plastic texture, glossy surface, modern, realistic',
+                    'glass': 'clear glass texture, transparent, reflective, smooth surface, realistic',
+                    'ceramic': 'white ceramic tile texture, smooth, glazed surface, elegant, realistic',
+                    'animals': 'soft animal fur texture, golden brown, natural, detailed, realistic',
+                    'cars': 'red car paint texture, metallic, glossy, modern, realistic',
+                    'fruits': 'red apple skin texture, natural, smooth, realistic, detailed',
+                    'buildings': 'gray concrete building wall texture, industrial, realistic, detailed',
+                    'nature': 'brown tree bark texture, rough, natural, realistic, detailed',
+                    'food': 'golden bread texture, crusty, natural, realistic, detailed',
+                    'electronics': 'green circuit board texture, detailed, realistic, modern',
+                    'clothing': 'blue denim fabric texture, rough, natural, realistic',
+                    'furniture': 'dark wood furniture texture, polished, elegant, realistic',
+                    'vehicles': 'blue vehicle paint texture, metallic, glossy, realistic',
+                    'jewelry': 'gold metal texture, shiny, luxury, realistic, detailed',
+                    'books': 'brown leather book cover texture, aged, realistic, detailed',
+                    'tools': 'silver metal tool texture, steel, industrial, realistic',
+                    'sports': 'brown leather ball texture, natural, realistic, detailed',
+                    'musical': 'brown wood guitar texture, polished, elegant, realistic',
+                    'medical': 'silver medical equipment texture, metal, sterile, realistic',
+                    'kitchen': 'white marble kitchen counter texture, smooth, realistic, elegant',
+                    'bathroom': 'white ceramic bathroom tile texture, smooth, realistic, clean',
+                    'office': 'brown wood desk texture, polished, professional, realistic',
+                    'garden': 'brown garden soil texture, natural, realistic, detailed'
+                };
+                
+                if (type === '3d') {
+                    document.getElementById('3dPrompt').value = prompts[preset];
+                } else {
+                    document.getElementById('texturePrompt').value = prompts[preset];
+                }
+            });
+        });
+
+        // Check system status
+        function checkStatus() {
+            fetch('/status')
+                .then(response => response.json())
+                .then(data => {
+                    const indicator = document.getElementById('statusIndicator');
+                    const statusText = document.getElementById('statusText');
+                    
+                    if (data.status === 'ready') {
+                        indicator.className = 'status-indicator status-ready';
+                        statusText.textContent = 'System Ready';
+                    } else {
+                        indicator.className = 'status-indicator status-loading';
+                        statusText.textContent = 'Initializing...';
+                    }
+                })
+                .catch(error => {
+                    const indicator = document.getElementById('statusIndicator');
+                    const statusText = document.getElementById('statusText');
+                    indicator.className = 'status-indicator status-error';
+                    statusText.textContent = 'System Error';
+                });
+        }
+
+        // Simulate progress bar
+        function simulateProgress(progressElement) {
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 10;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                }
+                progressElement.style.width = progress + '%';
+            }, 200);
+        }
+
+        // Handle texture generation
+        document.getElementById('textureForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const loading = document.getElementById('textureLoading');
+            const result = document.getElementById('textureResult');
+            const progress = document.getElementById('textureProgress');
+            
+            loading.style.display = 'block';
+            result.style.display = 'none';
+            simulateProgress(progress);
+            
+            const data = {
+                prompt: document.getElementById('texturePrompt').value,
+                width: parseInt(document.getElementById('textureWidth').value),
+                height: parseInt(document.getElementById('textureHeight').value),
+                steps: parseInt(document.getElementById('textureSteps').value),
+                enhance: document.getElementById('textureEnhance').value === 'true'
+            };
+            
+            fetch('/generate_texture', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+                // Increase timeout for AI generation
+                signal: AbortSignal.timeout(300000) // 5 minutes timeout
+            })
+            .then(response => response.json())
+            .then(data => {
+                loading.style.display = 'none';
+                
+                if (data.success) {
+                    document.getElementById('textureResultPrompt').textContent = data.prompt;
+                    document.getElementById('textureResultDimensions').textContent = data.dimensions;
+                    document.getElementById('textureResultFilename').textContent = data.filename;
+                    document.getElementById('textureDownloadBtn').href = data.download_url;
+                    
+                    // Display the generated image
+                    if (data.image_data) {
+                        const imageData = new Uint8Array(data.image_data.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+                        const blob = new Blob([imageData], { type: 'image/png' });
+                        const imageUrl = URL.createObjectURL(blob);
+                        
+                        // Create image preview
+                        const imagePreview = document.createElement('img');
+                        imagePreview.src = imageUrl;
+                        imagePreview.style.maxWidth = '100%';
+                        imagePreview.style.height = 'auto';
+                        imagePreview.style.borderRadius = '10px';
+                        imagePreview.style.marginTop = '1rem';
+                        
+                        // Add image to result card
+                        const resultContent = result.querySelector('.row');
+                        const imageCol = document.createElement('div');
+                        imageCol.className = 'col-md-12 text-center';
+                        imageCol.appendChild(imagePreview);
+                        resultContent.appendChild(imageCol);
+                    }
+                    
+                    result.style.display = 'block';
+                    
+                    // Update stats
+                    const currentCount = parseInt(document.getElementById('texturesGenerated').textContent);
+                    document.getElementById('texturesGenerated').textContent = currentCount + 1;
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                loading.style.display = 'none';
+                if (error.name === 'TimeoutError') {
+                    alert('Request timed out. The AI model is taking longer than expected. Please try again with fewer steps or wait a moment and retry.');
+                } else {
+                    alert('Error: ' + error.message);
+                }
+            });
+        });
+
+        // Handle 3D asset generation
+        document.getElementById('3dForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const loading = document.getElementById('3dLoading');
+            const result = document.getElementById('3dResult');
+            const progress = document.getElementById('3dProgress');
+            
+            loading.style.display = 'block';
+            result.style.display = 'none';
+            simulateProgress(progress);
+            
+            const data = {
+                prompt: document.getElementById('3dPrompt').value,
+                shape: document.getElementById('3dShape').value,
+                width: parseInt(document.getElementById('3dWidth').value),
+                height: parseInt(document.getElementById('3dHeight').value),
+                steps: parseInt(document.getElementById('3dSteps').value),
+                enhance: document.getElementById('3dEnhance').value === 'true'
+            };
+            
+            fetch('/generate_3d_asset', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+                // Increase timeout for AI generation
+                signal: AbortSignal.timeout(300000) // 5 minutes timeout
+            })
+            .then(response => response.json())
+            .then(data => {
+                loading.style.display = 'none';
+                
+                if (data.success) {
+                    document.getElementById('3dResultPrompt').textContent = data.prompt;
+                    document.getElementById('3dResultShape').textContent = data.shape;
+                    document.getElementById('3dResultFilename').textContent = data.obj_filename;
+
+                    // Remove previous download buttons and previews
+                    const resultContent = result.querySelector('.row');
+                    resultContent.innerHTML = `
+                        <div class="col-md-6">
+                            <p><strong>Prompt:</strong> <span id="3dResultPrompt">${data.prompt}</span></p>
+                            <p><strong>Shape:</strong> <span id="3dResultShape">${data.shape}</span></p>
+                            <p><strong>OBJ Filename:</strong> <span>${data.obj_filename}</span></p>
+                            <p><strong>MTL Filename:</strong> <span>${data.mtl_filename}</span></p>
+                            <p><strong>PNG Filename:</strong> <span>${data.png_filename}</span></p>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <a href="${data.download_obj_url}" class="btn btn-success me-2" download>
+                                <i class="fas fa-download"></i> Download OBJ
+                            </a>
+                            <a href="${data.download_mtl_url}" class="btn btn-warning me-2" download>
+                                <i class="fas fa-download"></i> Download MTL
+                            </a>
+                            <a href="${data.download_png_url}" class="btn btn-info" download>
+                                <i class="fas fa-image"></i> Download Texture PNG
+                            </a>
+                        </div>
+                    `;
+
+                    // Display the generated texture image for 3D asset
+                    if (data.image_data) {
+                        const imageData = new Uint8Array(data.image_data.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+                        const blob = new Blob([imageData], { type: 'image/png' });
+                        const imageUrl = URL.createObjectURL(blob);
+
+                        // Create image preview
+                        const imagePreview = document.createElement('img');
+                        imagePreview.src = imageUrl;
+                        imagePreview.style.maxWidth = '100%';
+                        imagePreview.style.height = 'auto';
+                        imagePreview.style.borderRadius = '10px';
+                        imagePreview.style.marginTop = '1rem';
+                        imagePreview.alt = `${data.shape} texture`;
+
+                        // Add image to result card
+                        const imageCol = document.createElement('div');
+                        imageCol.className = 'col-md-12 text-center';
+                        imageCol.innerHTML = `
+                            <h6 class="mt-3"><i class="fas fa-image"></i> Generated Texture for ${data.shape}</h6>
+                        `;
+                        imageCol.appendChild(imagePreview);
+                        resultContent.appendChild(imageCol);
+                    }
+
+                    result.style.display = 'block';
+
+                    // Update stats
+                    const currentCount = parseInt(document.getElementById('3dAssetsGenerated').textContent);
+                    document.getElementById('3dAssetsGenerated').textContent = currentCount + 1;
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                loading.style.display = 'none';
+                if (error.name === 'TimeoutError') {
+                    alert('Request timed out. The AI model is taking longer than expected. Please try again with fewer steps or wait a moment and retry.');
+                } else {
+                    alert('Error: ' + error.message);
+                }
+            });
+        });
+
+        // Initialize
+        createParticles();
+        checkStatus();
+        setInterval(checkStatus, 5000); // Check every 5 seconds
+    </script>
+</body>
+</html> 
